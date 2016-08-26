@@ -10,17 +10,23 @@ import (
 )
 
 type (
-	Parameter struct {
+	RequiredParameter struct {
 		APIToken string
 		AppID    string
 		FromDate string
 		ToDate   string
 	}
+	OptionalParameter struct {
+		Category    string
+		MediaSource string
+		Reattr      string
+	}
 	Client struct {
 		HTTPClient *http.Client
 
-		APIBaseURL   string
-		APIParameter Parameter
+		APIBaseURL           string
+		APIRequiredParameter RequiredParameter
+		APIOptionalParameter OptionalParameter
 	}
 )
 
@@ -36,7 +42,7 @@ func NewClientWithParam(apiToken, appID, fromDate, toDate string) *Client {
 	return &Client{
 		HTTPClient: http.DefaultClient,
 		APIBaseURL: defaultAPIBaseURL,
-		APIParameter: Parameter{
+		APIRequiredParameter: RequiredParameter{
 			APIToken: apiToken,
 			AppID:    appID,
 			FromDate: fromDate,
@@ -45,18 +51,35 @@ func NewClientWithParam(apiToken, appID, fromDate, toDate string) *Client {
 	}
 }
 
+func (c *Client) SetOptionalParameter(p OptionalParameter) {
+	c.APIOptionalParameter = p
+}
+
 func (c *Client) DispatchGetRequest(endpoint string) ([]byte, error) {
 	u, err := url.Parse(c.APIBaseURL)
 	if err != nil {
 		return nil, err
 	}
-	u.Path = path.Join("export", c.APIParameter.AppID, endpoint)
+	u.Path = path.Join("export", c.APIRequiredParameter.AppID, endpoint)
 	urlString := u.String()
 
 	values := url.Values{}
-	values.Set("api_token", c.APIParameter.APIToken)
-	values.Set("from", c.APIParameter.FromDate)
-	values.Set("to", c.APIParameter.ToDate)
+
+	// Required parameters
+	values.Set("api_token", c.APIRequiredParameter.APIToken)
+	values.Set("from", c.APIRequiredParameter.FromDate)
+	values.Set("to", c.APIRequiredParameter.ToDate)
+
+	// Optional parameters
+	if c.APIOptionalParameter.Category != "" {
+		values.Set("category", c.APIOptionalParameter.Category)
+	}
+	if c.APIOptionalParameter.MediaSource != "" {
+		values.Set("media_source", c.APIOptionalParameter.MediaSource)
+	}
+	if c.APIOptionalParameter.Reattr != "" {
+		values.Set("reattr", c.APIOptionalParameter.Reattr)
+	}
 
 	resp, err := c.HTTPClient.Get(urlString + "?" + values.Encode())
 	if err != nil {
