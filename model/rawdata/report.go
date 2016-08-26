@@ -39,6 +39,8 @@ func (r *Report) GetIsRetargeting() bool {
 	switch strings.ToLower(r.IsRetargeting) {
 	case "false":
 		return false
+	case "true":
+		return true
 	}
-	return true
+	return false
 }
