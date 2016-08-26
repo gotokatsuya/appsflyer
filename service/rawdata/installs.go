@@ -6,8 +6,10 @@ import (
 	"github.com/gotokatsuya/appsflyer/util/csv"
 )
 
+const endpointInstallReport = "installs_report/v5"
+
 func GetInstallsReports(client *dispatcher.Client) ([]rawdata.Report, error) {
-	body, err := client.DispatchGetRequest("installs_report/v5")
+	body, err := client.DispatchGetRequest(endpointInstallReport)
 	if err != nil {
 		return nil, err
 	}
@@ -18,4 +20,17 @@ func GetInstallsReports(client *dispatcher.Client) ([]rawdata.Report, error) {
 		return nil, err
 	}
 	return entities, nil
+}
+
+func GetEachInstallsReport(client *dispatcher.Client, f func(report rawdata.Report)) error {
+	body, err := client.DispatchGetRequest(endpointInstallReport)
+	if err != nil {
+		return err
+	}
+	if err := csv.Parse(string(body), rawdata.Report{}, func(v interface{}) {
+		f(v.(rawdata.Report))
+	}); err != nil {
+		return err
+	}
+	return nil
 }
