@@ -1,3 +1,10 @@
+# :fire: Caution :fire:
+
+No maintained this repository.
+
+Please see https://github.com/eure/appsflyer .
+
+
 # appsflyer
   
 AppsFlyer API client library for Go.
