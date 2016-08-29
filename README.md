@@ -1,6 +1,6 @@
 # :fire: Caution :fire:
 
-No maintained this repository.
+No maintained.
 
 Please see https://github.com/eure/appsflyer .
 
